@@ -1,0 +1,31 @@
+#link video
+https://youtu.be/ISftrpAImHA?si=AqlyrMsRlp9YOjnb
+
+kubectl apply -f k8s/recommended-dashboard.yaml
+
+kubectl proxy
+
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+kubectl apply -f k8s/dashboard-adminuser.yaml
+
+kubectl apply -f k8s/dashboard-clusterrole.yaml
+
+kubectl apply -f k8s/dashboard-secret.yaml
+
+#get token and convert to base64
+$token = kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath="{.data.token}"
+$decodedToken = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($token))
+Write-Output $decodedToken
+
+helm repo add apache-airflow https://airflow.apache.org
+helm install airflow apache-airflow/airflow --namespace airflow --create-namespace --debug
+
+kubectl port-forward svc/airflow-webserver 8080:8080 --namespace airflow
+
+#get fernet key
+$token = kubectl get secret --namespace airflow airflow-fernet-key -o jsonpath="{.data.fernet-key}"
+$decodedToken = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($token))
+Write-Output $decodedToken
+
+helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f k8s/values.yaml
