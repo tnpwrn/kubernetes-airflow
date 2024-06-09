@@ -29,3 +29,10 @@ $decodedToken = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBas
 Write-Output $decodedToken
 
 helm upgrade --install airflow apache-airflow/airflow --namespace airflow --create-namespace -f k8s/values.yaml
+
+
+
+
+
+#git key before push
+ssh-add ~/.ssh/mykey
